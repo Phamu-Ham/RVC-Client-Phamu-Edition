@@ -68,7 +68,7 @@ GPU世代・ドライバーによっては同梱PyTorch/CUDAに対応しない�
 
 【エラーが出たら】
 β版のため、気になった点・不具合・追加してほしい機能があればBOOTHショップのメッセージからご連絡ください。
-https://ham-shop.booth.pm/
+https://phamu-studio.booth.pm/
 起動中は黒い画面に「起動中…」と表示します。準備が終わるまで閉じずにお待ちください。
 本体のログは本体/support_logsへ保存します。書き込めない場合は
 %LOCALAPPDATA%/PhamuStudio/RVCClient/support_logsを試し、画面に保存先を表示します。

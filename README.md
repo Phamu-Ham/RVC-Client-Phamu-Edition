@@ -2,7 +2,9 @@
 
 日本語UIと画像付きプリセットで使える、無料のリアルタイムRVCクライアントです。
 
-**[ダウンロード](https://github.com/Phamu-Ham/RVC-Client-Phamu-Edition/releases/download/b1.0/Install_RVC_Client.bat) · [BOOTHショップ](https://ham-shop.booth.pm/) · [詳しい使い方](app/使い方.txt)**
+**[ダウンロード](https://github.com/Phamu-Ham/RVC-Client-Phamu-Edition/releases/download/b1.0/Install_RVC_Client.bat) · [BOOTHショップ](https://phamu-studio.booth.pm/) · [詳しい使い方](app/使い方.txt)**
+
+[プロジェクト説明（AI向けMarkdown / llm.txt）](llm.txt)
 
 | 使う前に | 内容 |
 | --- | --- |
@@ -48,7 +50,7 @@ Discord・VRChatへ音声を渡す場合は、必要に応じて [VB-CABLE](http
 
 ## お問い合わせ
 
-β版のため、気になる点・不具合・追加してほしい機能があれば、[Phamu StudioのBOOTHショップ](https://ham-shop.booth.pm/) のメッセージからお気軽にどうぞ！
+β版のため、気になる点・不具合・追加してほしい機能があれば、[Phamu StudioのBOOTHショップ](https://phamu-studio.booth.pm/) のメッセージからお気軽にどうぞ！
 
 | ログが必要なとき | 保存先・操作 |
 | --- | --- |
