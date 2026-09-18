@@ -58,8 +58,6 @@ Discord・VRChat 等へ音声を渡す場合は、必要に応じて [VB-CABLE](
 Phamu Studio の追加・改変コードは [MIT License](LICENSE-PHAMU.txt)、元 RVC のコードは [元の LICENSE](LICENSE) に従います。コードの改変・再配布・商用利用は各ライセンスの条件に従って行えます。
 第三者ライブラリ、ネイティブバイナリ、共通重み、別途入手する音声モデルの条件は別です。全同梱物を MIT として再許諾するものではありません。
 
-[適用範囲](app/LICENSING.md) / [第三者表示と確認状況](app/licenses/THIRD_PARTY_NOTICES.md)
-
 ## 運営・お問い合わせ
 
 公式リポジトリへの Pull Request は受け付けていません。これは手元での改変を禁止するものではありません。[運営方針](CONTRIBUTING.md)をご覧ください。
