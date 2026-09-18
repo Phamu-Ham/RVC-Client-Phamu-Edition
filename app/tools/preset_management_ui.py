@@ -18,30 +18,8 @@ def _text(sg, text, **kwargs):
 
 
 def _dialog(sg, parent, title, layout):
-    root = parent.TKroot
-    header = sg.Column([[
-        _text(sg, title, key="_dialog_title", font=(YOZAKURA_FONT, 14, "bold"), expand_x=True, pad=(0, 0)),
-        sg.Canvas(size=(38, 38), key="_dialog_close", pad=(0, 0),
-                  background_color=YOZAKURA["card"], tooltip="閉じる（Esc）")]],
-        key="_dialog_header", expand_x=True, background_color=YOZAKURA["card"], pad=(0, (0, 16)))
-    dialog = sg.Window(title, [[header]] + layout, modal=True, finalize=True, keep_on_top=True,
-                     no_titlebar=True,
-                     background_color=YOZAKURA["card"], margins=(24, 20),
-                     font=(YOZAKURA_FONT, 10),
-                     location=(max(0, root.winfo_rootx() + 60), max(0, root.winfo_rooty() + 80)))
-    close = dialog["_dialog_close"].TKCanvas
-    close.configure(bd=0, highlightthickness=0, cursor="hand2", takefocus=True)
-    close.create_oval(3, 3, 35, 35, fill=YOZAKURA["card_alt"], outline="", tags="surface")
-    close.create_line(15, 15, 23, 23, fill=YOZAKURA["text"], width=1.5, capstyle="round", tags="cross")
-    close.create_line(23, 15, 15, 23, fill=YOZAKURA["text"], width=1.5, capstyle="round", tags="cross")
-    close.bind("<Enter>", lambda _e: close.itemconfigure("cross", fill=YOZAKURA["pink_light"]))
-    close.bind("<Leave>", lambda _e: close.itemconfigure("cross", fill=YOZAKURA["text"]))
-    for sequence in ("<Button-1>", "<Return>", "<space>"):
-        close.bind(sequence, lambda _e: dialog.write_event_value("_dialog_close", None))
-    dialog.TKroot.focus_set()
-    from tools.themed_dialog import style_dialog
-    style_dialog(dialog, "_dialog_close")
-    return dialog
+    from tools.themed_dialog import create_dialog
+    return create_dialog(sg, parent, title, layout)
 
 
 def confirm_delete(sg, parent, name):

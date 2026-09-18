@@ -17,6 +17,8 @@ app/configs/preset_trash/
 app/configs/preset_recovery/
 app/configs/integrations.private.json
 app/logs/
+**/support_logs/
+**/Phamu-Installer-Logs/
 app/TEMP/
 *.pth
 *.pt

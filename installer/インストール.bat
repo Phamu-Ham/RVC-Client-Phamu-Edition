@@ -1,5 +1,7 @@
 @echo off
 setlocal DisableDelayedExpansion
+chcp 65001 >nul
+echo インストーラーを起動中… しばらくお待ちください。
 set "PHAMU_INSTALLER_SELF=%~f0"
 set "PHAMU_INSTALLER_PARENT=%~dp0"
 powershell.exe -NoLogo -NoProfile -Command "$ErrorActionPreference='Stop'; try { $s=[IO.File]::ReadAllText($env:PHAMU_INSTALLER_SELF,[Text.Encoding]::UTF8); $m='#===PHAMU_POWERSHELL==='; & ([ScriptBlock]::Create($s.Substring($s.LastIndexOf($m)+$m.Length))) } catch { Write-Host $_ -ForegroundColor Red; exit 1 }"
@@ -8,6 +10,10 @@ if not "%PHAMU_INSTALLER_NO_PAUSE%"=="1" pause
 exit /b %PHAMU_INSTALLER_EXIT%
 #===PHAMU_POWERSHELL===
 $ErrorActionPreference = 'Stop'
+$ProgressPreference = 'SilentlyContinue'
+$script:InstallLog = $null
+$script:InstallLogBytes = 0
+$script:InstallLogLimit = 1MB
 [Console]::OutputEncoding = New-Object Text.UTF8Encoding($false)
 # Resolve the inbox modules from this Windows PowerShell, not an inherited
 # PowerShell 7 or embedding host's PSModulePath. No machine/user settings change.
@@ -20,19 +26,19 @@ $Release = @'
   "root": "RVC_Client_Phamu_Edition",
   "base_url": "https://github.com/Phamu-Ham/RVC-Client-Phamu-Edition/releases/download/b1.0/",
   "zip_name": "RVC_Client_Phamu_Edition.zip",
-  "zip_bytes": 3637897035,
-  "zip_sha256": "942f6b3125e38b7bdbe785514974c19be5ffc7677d240072e26edf615914024b",
-  "unpacked_bytes": 6130618391,
+  "zip_bytes": 3637905239,
+  "zip_sha256": "9440b2f3cf883a8d80e3a3be669548b3e14384901b51a377778871b9cef05fc3",
+  "unpacked_bytes": 6130639160,
   "parts": [
     {
       "name": "RVC_Client_Phamu_Edition.zip.001",
       "bytes": 1900000000,
-      "sha256": "d45742c224d6098ab3ff19ffefd5adad0839fcb068f65377603e0e571243c286"
+      "sha256": "a229d9318b701e199c8d9c6ca16b45505d32ac4a4690b83fdb9c2b59662be11c"
     },
     {
       "name": "RVC_Client_Phamu_Edition.zip.002",
-      "bytes": 1737897035,
-      "sha256": "a72a882f6bb4dfb88f5f4e8d403bfb6385d3b2a99980861efb50879c05fd8cd5"
+      "bytes": 1737905239,
+      "sha256": "d6e7c6b7788dde4b31a09b125dd35e03e8b5e5d66663c0633a12030e84906a8b"
     }
   ]
 }
@@ -57,6 +63,81 @@ function Assert-NoReparse([string]$Path) {
         }
         $current = [IO.Path]::GetDirectoryName($current)
     }
+}
+
+function Protect-LogText([string]$Text) {
+    $Text = [regex]::Replace($Text, '(?i)https?://[^\s"''<>]+', '<URL>')
+    $Text = [regex]::Replace($Text, '(?i)"(?:[a-z]:[\\/]|\\\\)[^"\r\n]*"', '"<PATH>"')
+    $Text = [regex]::Replace($Text, '(?i)(?:[a-z]:[\\/]|\\\\)[^\r\n"''<>|]*', '<PATH>')
+    $Text = [regex]::Replace($Text, '[\w.+-]+@[\w.-]+\.[A-Za-z]{2,}', '<EMAIL>')
+    $Text = [regex]::Replace($Text, '(?i)\b(token|password|secret|api[_-]?key|authorization)\b\s*[:=]\s*[^\r\n]+', '$1=<REDACTED>')
+    foreach ($identity in @($env:USERNAME, $env:COMPUTERNAME)) {
+        if ($identity -and $identity.Length -ge 3) {
+            $Text = [regex]::Replace($Text, '(?i)(?<!\w)' + [regex]::Escape($identity) + '(?!\w)', '<USER>')
+        }
+    }
+    return $Text
+}
+
+function Initialize-InstallLog([string]$Parent) {
+    $script:InstallLog = $null
+    $script:InstallLogBytes = 0
+    $script:InstallLogLimit = 1MB
+    $script:InstallLogPath = $null
+    try {
+        $folder = Assert-ChildPath $Parent (Join-Path $Parent 'Phamu-Installer-Logs')
+        Assert-NoReparse $folder
+        [void][IO.Directory]::CreateDirectory($folder)
+        $name = 'installer-' + (Get-Date -Format 'yyyyMMdd-HHmmssfff') + '-' + [Guid]::NewGuid().ToString('N').Substring(0,8) + '.log'
+        $path = Assert-ChildPath $folder (Join-Path $folder $name)
+        $stream = [IO.File]::Open($path, [IO.FileMode]::CreateNew, [IO.FileAccess]::Write, [IO.FileShare]::Read)
+        $script:InstallLog = New-Object IO.StreamWriter($stream, (New-Object Text.UTF8Encoding($false)))
+        $script:InstallLog.AutoFlush = $true
+        $script:InstallLogPath = $path
+        # Recycle only our own exact log names; leave other files and active logs alone.
+        $old = @(Get-ChildItem -LiteralPath $folder -File | Where-Object {
+            $_.Name -match '^installer-\d{8}-\d{9}-[0-9a-f]{8}\.log$'
+        } | Sort-Object Name -Descending | Select-Object -Skip 8)
+        foreach ($file in $old) {
+            try {
+                $safe = Assert-ChildPath $folder $file.FullName
+                Assert-NoReparse $safe
+                Add-Type -AssemblyName Microsoft.VisualBasic
+                [Microsoft.VisualBasic.FileIO.FileSystem]::DeleteFile($safe,
+                    [Microsoft.VisualBasic.FileIO.UIOption]::OnlyErrorDialogs,
+                    [Microsoft.VisualBasic.FileIO.RecycleOption]::SendToRecycleBin)
+            } catch { } # Never force-delete a locked/inaccessible diagnostic file.
+        }
+    } catch {
+        Write-Host 'ログを保存できません。エラーが出た場合は画面の内容を控えてください。' -ForegroundColor Yellow
+    }
+}
+
+function Write-InstallMessage([string]$Message, [ConsoleColor]$ForegroundColor = [ConsoleColor]::Gray) {
+    Write-Host $Message -ForegroundColor $ForegroundColor
+    if ($script:InstallLog) {
+        try {
+            $line = '[' + (Get-Date -Format 'yyyy-MM-ddTHH:mm:ss') + '] ' + (Protect-LogText $Message)
+            $bytes = [Text.Encoding]::UTF8.GetByteCount($line + "`r`n")
+            if ($script:InstallLogBytes + $bytes -le $script:InstallLogLimit - 128) {
+                $script:InstallLog.WriteLine($line)
+                $script:InstallLogBytes += $bytes
+            } elseif ($script:InstallLogBytes -lt $script:InstallLogLimit) {
+                $script:InstallLog.WriteLine('[support] Log size limit reached; further messages omitted.')
+                $script:InstallLogBytes = $script:InstallLogLimit
+            }
+        } catch { } # Failure to write a support log must not corrupt installation.
+    }
+}
+
+function Write-DownloadProgress([long]$Received, [long]$Total, [int]$LastPercent, [long]$ElapsedMs) {
+    $percent = [int][Math]::Floor(100 * $Received / $Total)
+    # Append-only lines: no cursor movement, repainting, or native progress overlay.
+    if ($percent -ge $LastPercent + 10 -or $ElapsedMs -ge 15000 -or $Received -eq $Total) {
+        Write-InstallMessage ('ダウンロード: {0}% ({1:N0} / {2:N0} MB)' -f $percent, ($Received/1MB), ($Total/1MB))
+        return $percent
+    }
+    return -1
 }
 
 function Test-Artifact([string]$Path, [long]$Bytes, [string]$Hash) {
@@ -102,12 +183,14 @@ function Receive-Artifact([string]$Url, [string]$Path, [long]$ExpectedBytes) {
         $buffer = New-Object byte[] (1024 * 1024)
         [long]$received = 0
         $timer = [Diagnostics.Stopwatch]::StartNew()
+        $lastPercent = 0
         while (($count = $inputStream.Read($buffer, 0, $buffer.Length)) -gt 0) {
             $received += $count
             if ($received -gt $ExpectedBytes) { throw 'ダウンロードサイズが想定を超えました。' }
             $outputStream.Write($buffer, 0, $count)
-            if ($timer.ElapsedMilliseconds -ge 500) {
-                Write-Progress -Activity 'クライアントをダウンロード中' -Status ('{0:N0} / {1:N0} MB' -f ($received/1MB), ($ExpectedBytes/1MB)) -PercentComplete ([int](100*$received/$ExpectedBytes))
+            $reported = Write-DownloadProgress $received $ExpectedBytes $lastPercent $timer.ElapsedMilliseconds
+            if ($reported -ge 0) {
+                $lastPercent = $reported
                 $timer.Restart()
             }
         }
@@ -116,7 +199,6 @@ function Receive-Artifact([string]$Url, [string]$Path, [long]$ExpectedBytes) {
         if ($outputStream) { $outputStream.Dispose() }
         if ($inputStream) { $inputStream.Dispose() }
         if ($response) { $response.Dispose() }
-        Write-Progress -Activity 'クライアントをダウンロード中' -Completed
     }
 }
 
@@ -151,7 +233,7 @@ function Invoke-PhamuInstall($Config, [string]$Parent) {
     if (Test-Path -LiteralPath $target) {
         if ([IO.File]::Exists((Join-Path $target '起動.lnk')) -and
             [IO.File]::Exists((Join-Path $target '本体\runtime\python.exe'))) {
-            Write-Host "配置済みです。既存のモデル・画像・設定は上書きしません。`n$target\起動.lnk"
+            Write-InstallMessage "配置済みです。既存のモデル・画像・設定は上書きしません。`n$target\起動.lnk"
             return
         }
         throw '同名のファイル／フォルダが既にあります。安全のため上書きしません。'
@@ -177,9 +259,9 @@ function Invoke-PhamuInstall($Config, [string]$Parent) {
         $drive = New-Object IO.DriveInfo([IO.Path]::GetPathRoot($parentPath))
         [long]$required = 2 * $Config.zip_bytes + $Config.unpacked_bytes + 512MB
         if ($drive.AvailableFreeSpace -lt $required) { throw ('空き容量が不足しています。約{0:N1} GB以上必要です。' -f ($required/1GB)) }
-        Write-Host ('RVC Client -Phamu''s Edition- {0}' -f $Config.version) -ForegroundColor Cyan
-        Write-Host "配置先: $target"
-        Write-Host '監査済みの実行環境を取得します。Git・Pythonの追加インストールは不要です。'
+        Write-InstallMessage ('RVC Client -Phamu''s Edition- {0}' -f $Config.version) -ForegroundColor Cyan
+        Write-InstallMessage "配置先: $target"
+        Write-InstallMessage '実行環境を取得します。Git・Pythonの追加インストールは不要です。'
         $parts = @()
         foreach ($part in $Config.parts) {
             $path = Assert-ChildPath $cache (Join-Path $cache $part.name)
@@ -191,22 +273,23 @@ function Invoke-PhamuInstall($Config, [string]$Parent) {
                 $temporary = Assert-ChildPath $cache ($path + '.download')
                 for ($attempt=1; $attempt -le 3; $attempt++) {
                     try {
-                        Write-Host ('取得中: {0}（試行{1}/3）' -f $part.name, $attempt)
+                        Write-InstallMessage ('取得中: {0}（試行{1}/3）' -f $part.name, $attempt)
                         Receive-Artifact ($Config.base_url + $part.name) $temporary $part.bytes
                         if (!(Test-Artifact $temporary $part.bytes $part.sha256)) { throw 'データのハッシュが一致しません。' }
                         [IO.File]::Move($temporary, $path)
                         break
                     } catch {
+                        Write-InstallMessage ('取得・検証エラー: {0} (HRESULT={1})' -f $_.Exception.Message, $_.Exception.HResult) -ForegroundColor Yellow
                         if ($attempt -eq 3) { throw }
                         Start-Sleep -Seconds 2
                     }
                 }
-            } else { Write-Host ('確認済みデータを再利用: ' + $part.name) }
+            } else { Write-InstallMessage ('確認済みデータを再利用: ' + $part.name) }
             $parts += $path
         }
         $zip = Assert-ChildPath $cache (Join-Path $cache $Config.zip_name)
         if (!(Test-Artifact $zip $Config.zip_bytes $Config.zip_sha256)) {
-            Write-Host '分割データを結合・検証しています…'
+            Write-InstallMessage '分割データを結合・検証しています…'
             $stream = [IO.File]::Open($zip, [IO.FileMode]::Create, [IO.FileAccess]::Write, [IO.FileShare]::None)
             try {
                 foreach ($partPath in $parts) {
@@ -232,7 +315,7 @@ function Invoke-PhamuInstall($Config, [string]$Parent) {
             if ($expanded -ne $Config.unpacked_bytes) { throw '展開後サイズが一致しません。' }
         } finally { $archive.Dispose() }
         $stage = Assert-ChildPath $cache (Join-Path $cache ('expand-' + [Guid]::NewGuid().ToString('N')))
-        Write-Host '展開しています。ファイル数が多いため、しばらくお待ちください…'
+        Write-InstallMessage '展開しています。ファイル数が多いため、しばらくお待ちください…'
         $savedProgress = $ProgressPreference
         try {
             $ProgressPreference = 'SilentlyContinue'
@@ -252,18 +335,26 @@ function Invoke-PhamuInstall($Config, [string]$Parent) {
     } finally { $lock.Dispose() }
     if ($completed) {
         try { Send-CacheToRecycleBin $parentPath $cache $owner }
-        catch { Write-Host "導入は完了しました。一時データは手動で片付けられます: $cache" -ForegroundColor Yellow }
-        Write-Host "`nインストール完了。次の「起動」ショートカットから使えます。`n$target\起動.lnk" -ForegroundColor Green
+        catch { Write-InstallMessage "導入は完了しました。一時データは手動で片付けられます: $cache" -ForegroundColor Yellow }
+        Write-InstallMessage "`nインストール完了。次の「起動」ショートカットから使えます。`n$target\起動.lnk" -ForegroundColor Green
     }
 }
 
 try {
+    Initialize-InstallLog $env:PHAMU_INSTALLER_PARENT
+    Write-InstallMessage ('Installer started: version={0}; PowerShell={1}; Windows={2}; 64bit={3}' -f $Release.version, $PSVersionTable.PSVersion, [Environment]::OSVersion.Version, [Environment]::Is64BitOperatingSystem)
+    if ($script:InstallLogPath) { Write-InstallMessage ('問い合わせ用ログ: ' + $script:InstallLogPath) }
     Invoke-PhamuInstall $Release $env:PHAMU_INSTALLER_PARENT
+    Write-InstallMessage 'Installer exit: 0'
     exit 0
 } catch {
-    Write-Host "`nインストールできませんでした。" -ForegroundColor Red
-    Write-Host $_.Exception.Message -ForegroundColor Red
-    Write-Host '通信失敗の場合は、接続を確認して同じバッチを再実行してください。検証済みの分割データは再利用します。'
-    Write-Host 'このバッチは既存のクライアントや個人設定を上書きしません。'
+    Write-InstallMessage "`nインストールできませんでした。" -ForegroundColor Red
+    Write-InstallMessage ('{0}: {1} (HRESULT={2})' -f $_.Exception.GetType().Name, $_.Exception.Message, $_.Exception.HResult) -ForegroundColor Red
+    Write-InstallMessage $_.ScriptStackTrace
+    Write-InstallMessage '通信失敗の場合は、接続を確認して同じバッチを再実行してください。検証済みの分割データは再利用します。'
+    Write-InstallMessage 'このバッチは既存のクライアントや個人設定を上書きしません。'
+    Write-InstallMessage 'Installer exit: 1'
     exit 1
+} finally {
+    if ($script:InstallLog) { $script:InstallLog.Dispose(); $script:InstallLog = $null }
 }

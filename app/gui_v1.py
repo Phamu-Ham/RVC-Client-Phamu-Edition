@@ -1,5 +1,9 @@
 import os
 import sys
+if __name__ == "__main__":
+    from tools.support_log import install as install_support_log
+    install_support_log(os.path.dirname(os.path.abspath(__file__)))
+    print("起動中… 実行環境を読み込んでいます。画面が開くまでお待ちください。", flush=True)
 from dotenv import load_dotenv
 import shutil
 
@@ -70,6 +74,8 @@ if __name__ == "__main__":
     import torch.nn.functional as F
     import torchaudio.transforms as tat
     from PIL import Image, ImageDraw, ImageFont, ImageOps
+
+    print("起動中… 音声デバイスと画面を準備しています。", flush=True)
 
     from infer.lib.harvest_pool import HarvestPool
     from tools.runtime_support import DEBUG_REALTIME, debugt
@@ -695,6 +701,7 @@ if __name__ == "__main__":
             "gallery_prev": (YOZAKURA["text"], YOZAKURA["card_alt"], YOZAKURA["border"]),
             "gallery_next": (YOZAKURA["text"], YOZAKURA["card_alt"], YOZAKURA["border"]),
             "preset_trash": (YOZAKURA["text"], YOZAKURA["card_alt"], YOZAKURA["border"]),
+            "export_support_log": (YOZAKURA["text"], YOZAKURA["card_alt"], YOZAKURA["border"]),
         }
         from PIL import Image, ImageDraw, ImageTk
 
@@ -2280,6 +2287,8 @@ if __name__ == "__main__":
                 "card_voice",
                 show_title=False,
             )
+            engine_rows.append([sg.Button("問い合わせ用ログを保存", key="export_support_log",
+                                          tooltip="エラーと環境情報をZIPへ保存。自動送信はしません。")])
             engine_card = card(
                 i18n("エンジン設定"),
                 engine_rows,
@@ -2598,6 +2607,14 @@ if __name__ == "__main__":
             self.window.TKroot.after_idle(
                 lambda: self.apply_responsive_layout(force=True)
             )
+            from tools.support_log import attach_tk, environment_info, record
+            attach_tk(self.window.TKroot)
+            record("Ready environment: " + json.dumps(environment_info(), ensure_ascii=False))
+            record("Audio devices: inputs=%d; outputs=%d; host_api=%s" % (
+                len(self.input_devices), len(self.output_devices), self.selected_hostapi))
+            if getattr(self, "device_error", ""):
+                record("Audio device initialization: " + self.device_error)
+            print("起動しました。モデルと音声デバイスを選び、「開始」を押してください。", flush=True)
             if os.environ.get("RVC_GUI_SMOKE_TEST") == "1":
                 self.window.refresh()
                 if os.environ.get("RVC_GUI_LAYOUT_TEST") == "1":
@@ -2683,6 +2700,10 @@ if __name__ == "__main__":
                 sg.popup_error("テーマを切り替えられませんでした", str(error))
 
         def report_audio_status(self, message):
+            if message and message != getattr(self, "_last_logged_status", ""):
+                from tools.support_log import record
+                record("Client status: " + str(message))
+            self._last_logged_status = message
             if not hasattr(self, "window") or "audio_status" not in getattr(self.window, "AllKeysDict", {}):
                 return
             self.window["audio_status"].update(message, visible=bool(message))
@@ -2725,6 +2746,17 @@ if __name__ == "__main__":
                 if event in (sg.WINDOW_CLOSED, "window_close"):
                     self.persist_session(values)
                     return
+                if event == "export_support_log":
+                    from tools.support_ui import show_support
+                    audio = {"host_api": values.get("sg_hostapi", ""),
+                             "f0_method": self.selected_f0method(values)}
+                    for key in ("pitch", "index_rate"):
+                        audio[key] = values.get(key)
+                    audio["block_seconds"] = values.get("block_time")
+                    for label, attr in (("sample_rate", "samplerate"), ("channels", "channels")):
+                        audio[label] = getattr(self.gui_config, attr, None)
+                    show_support(sg, self.window, current_dir, audio)
+                    continue
                 if event in {"preset_management", "preset_trash", "preset_trash_maintenance", "preset_trash_maintenance_done"}:
                     from tools import preset_management_ui as management
                     if event == "preset_management":
@@ -2848,23 +2880,19 @@ if __name__ == "__main__":
                     if self.set_values(values) == True:
                         printt("cuda_is_available: %s", torch.cuda.is_available())
                         try:
+                            from tools.support_log import record
+                            record("Conversion start requested: " + json.dumps({
+                                key: values.get(key) for key in
+                                ("pitch", "index_rate", "block_time", "crossfade_length", "extra_time", "n_cpu")
+                            }, ensure_ascii=False))
                             self.start_vc()
+                            record("Audio stream started: sample_rate=%s; channels=%s; f0=%s" % (
+                                self.gui_config.samplerate, self.gui_config.channels, self.gui_config.f0method))
                         except Exception:
                             self.stop_stream()
                             error_text = traceback.format_exc()
-                            os.makedirs("logs", exist_ok=True)
-                            with open(
-                                "logs/realtime_gui_error.log",
-                                "a",
-                                encoding="utf-8",
-                            ) as error_log:
-                                error_log.write(
-                                    "\n[%s] PLAY start failed\n%s"
-                                    % (
-                                        time.strftime("%Y-%m-%d %H:%M:%S"),
-                                        error_text,
-                                    )
-                                )
+                            from tools.support_log import record
+                            record("PLAY start failed\n" + error_text)
                             printt(error_text)
                             sg.popup_error(
                                 i18n("PLAY開始に失敗しました"),
@@ -3180,6 +3208,8 @@ if __name__ == "__main__":
                 return
             error = getattr(self, "audio_error", None)
             if error or not self.stream_is_active():
+                from tools.support_log import record
+                record("Audio stream stopped unexpectedly: " + str(error or "inactive device stream"))
                 self.stop_stream()
                 self.report_audio_status("音声出力が停止しました。デバイスを確認し「開始」で再開できます。" +
                                          ("\n" + str(error)[:180] if error else ""))

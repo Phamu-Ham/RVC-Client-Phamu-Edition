@@ -3,6 +3,7 @@ import tkinter as tk
 from tools.yozakura_theme import YOZAKURA, YOZAKURA_FONT
 from tools.preset_import import classify_dropped_files
 from tools.dialog_widgets import rounded_entry, style_button, DropSurface
+from tools.themed_dialog import create_dialog
 
 
 def attach_file_drop(dialog, entries, surface):
@@ -71,7 +72,6 @@ def choose_preset_files(sg, parent):
                               pad=(0, 0), file_types=((file_type, pattern),))]
 
     layout = [
-        [text("プリセットを追加", font=(YOZAKURA_FONT, 15, "bold"), pad=(0, (0, 12)))],
         [sg.Canvas(size=(536, 92), key="drop_zone", background_color=YOZAKURA["card"],
                    pad=(0, (0, 16)))],
         [text("RVCモデル（.pth）", pad=(0, (0, 6)))],
@@ -92,9 +92,8 @@ def choose_preset_files(sg, parent):
     root.update_idletasks()
     location = (max(0, root.winfo_rootx() + (root.winfo_width()-584)//2),
                 max(0, root.winfo_rooty() + (root.winfo_height()-548)//2))
-    dialog = sg.Window("プリセット追加", layout, modal=True, finalize=True,
-                       keep_on_top=True, background_color=YOZAKURA["card"],
-                       margins=(24, 20), font=(YOZAKURA_FONT, 10), location=location)
+    dialog = create_dialog(sg, parent, "プリセット追加", layout, location=location)
+    dialog["_dialog_title"].update("プリセットを追加")
     cleanup = lambda: None
     try:
         entries = {key: rounded_entry(dialog, key) for key in ("model", "index")}
@@ -109,7 +108,7 @@ def choose_preset_files(sg, parent):
         entries["model"].focus_set()
         while True:
             event, values = dialog.read()
-            if event in (sg.WINDOW_CLOSED, "cancel"):
+            if event in (sg.WINDOW_CLOSED, "cancel", "_dialog_close"):
                 return None
             if event == "submit":
                 if not values["model"].strip():
