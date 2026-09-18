@@ -26,19 +26,19 @@ $Release = @'
   "root": "RVC_Client_Phamu_Edition",
   "base_url": "https://github.com/Phamu-Ham/RVC-Client-Phamu-Edition/releases/download/b1.0/",
   "zip_name": "RVC_Client_Phamu_Edition.zip",
-  "zip_bytes": 3637905239,
-  "zip_sha256": "9440b2f3cf883a8d80e3a3be669548b3e14384901b51a377778871b9cef05fc3",
-  "unpacked_bytes": 6130639160,
+  "zip_bytes": 3637905244,
+  "zip_sha256": "8eb2328f18e0563b1795585672a1106482ce58e53cb66cfc5bd1a435f9dea4c7",
+  "unpacked_bytes": 6130639157,
   "parts": [
     {
       "name": "RVC_Client_Phamu_Edition.zip.001",
       "bytes": 1900000000,
-      "sha256": "a229d9318b701e199c8d9c6ca16b45505d32ac4a4690b83fdb9c2b59662be11c"
+      "sha256": "a6884e3f39f2750d5fae65a5d31cdc3fd462eb05ca0719acaa87ca016ca2bc15"
     },
     {
       "name": "RVC_Client_Phamu_Edition.zip.002",
-      "bytes": 1737905239,
-      "sha256": "d6e7c6b7788dde4b31a09b125dd35e03e8b5e5d66663c0633a12030e84906a8b"
+      "bytes": 1737905244,
+      "sha256": "5f50abead568e2bbb7778ce3d98f32fd31de8cbed17a85d16fc4f33c41358e74"
     }
   ]
 }

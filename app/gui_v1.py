@@ -1,13 +1,15 @@
 import os
 import sys
+APP_ROOT = os.path.dirname(os.path.abspath(__file__))
+if APP_ROOT not in sys.path:
+    sys.path.append(APP_ROOT)
 if __name__ == "__main__":
     from tools.support_log import install as install_support_log
-    install_support_log(os.path.dirname(os.path.abspath(__file__)))
+    install_support_log(APP_ROOT)
     print("起動中… 実行環境を読み込んでいます。画面が開くまでお待ちください。", flush=True)
 from dotenv import load_dotenv
 import shutil
 
-APP_ROOT = os.path.dirname(os.path.abspath(__file__))
 os.chdir(APP_ROOT)
 load_dotenv(os.path.join(APP_ROOT, ".env"))
 
@@ -16,7 +18,6 @@ if sys.platform == "darwin":
     os.environ["PYTORCH_ENABLE_MPS_FALLBACK"] = "1"
 
 now_dir = os.getcwd()
-sys.path.append(now_dir)
 import multiprocessing
 
 flag_vc = False
