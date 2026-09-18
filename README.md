@@ -2,7 +2,7 @@
 
 日本語UIと画像付きプリセットで使える、無料のリアルタイムRVCクライアントです。
 
-**[ダウンロード](https://github.com/Phamu-Ham/RVC-Client-Phamu-Edition/releases/download/b1.0/Install_RVC_Client.bat) · [BOOTHショップ](https://phamu-studio.booth.pm/) · [詳しい使い方](app/使い方.txt)**
+**[ダウンロード](https://github.com/Phamu-Ham/RVC-Client-Phamu-Edition/releases/download/b1.0/Install_RVC_Client.bat) · [BOOTH商品ページ](https://phamu-studio.booth.pm/items/8868126) · [BOOTHショップ](https://phamu-studio.booth.pm/) · [詳しい使い方](app/使い方.txt)**
 
 [プロジェクト説明（AI向けMarkdown / llm.txt）](llm.txt)
 

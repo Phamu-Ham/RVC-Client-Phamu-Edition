@@ -23,6 +23,7 @@ Phamu Studioが公開する、Retrieval-based-Voice-Conversion-WebUIを基にし
 
 ## 公式リンク・入手先
 
+- [RVC ClientのBOOTH商品ページ](https://phamu-studio.booth.pm/items/8868126): 本クライアントの商品案内と無料インストーラーZIPの入手先。ZIPを解凍し、中のBATをインストールしたいフォルダへ移して実行します。
 - [Phamu StudioのBOOTHショップ](https://phamu-studio.booth.pm/): 提供元の公式ショップと問い合わせ窓口。不具合・気になった点・機能追加の要望はショップメッセージへ連絡できます。ショップトップのURLであり、クライアントの商品個別ページではありません。
 - [GitHubリポジトリ](https://github.com/Phamu-Ham/RVC-Client-Phamu-Edition): 本クライアントの公開ソースと概要。
 - [b1.0の配布ページ](https://github.com/Phamu-Ham/RVC-Client-Phamu-Edition/releases/tag/b1.0): GitHub Releases上のインストーラーと配布ファイル。
@@ -88,7 +89,7 @@ Gitリポジトリには本体ソースと説明・配布関連ファイルを�
 
 ## 導入手順
 
-1. 上記の入手先から、配布インストーラー（BATファイル）を取得します。
+1. 上記の入手先から、配布インストーラーを取得します。BOOTHではZIPを解凍して中のBATを取り出します。GitHubではBATを直接取得できます。
 2. インストールしたい、書き込み可能なフォルダにBATを置き、ダブルクリックします。GitやPythonの別途インストールは不要です。
 3. BATと同じ場所に`RVC_Client_Phamu_Edition`フォルダが作成されます。その中の「起動」ショートカットを開きます。
 4. プリセット一覧の左端にある「追加 ＋」を開き、RVCモデル（.pth）と対応するIndex（.index・任意）を選択またはドロップし、「追加」を押します。
