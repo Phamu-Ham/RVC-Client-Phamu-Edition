@@ -1,0 +1,2 @@
+* -text
+# Preserve audited source/installer bytes, including the BAT's CRLF encoding.

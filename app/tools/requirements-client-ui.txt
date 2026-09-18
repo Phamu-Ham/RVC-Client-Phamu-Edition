@@ -1,0 +1,2 @@
+# Native file drag-and-drop for the preset import dialog (includes TkDND).
+tkinterdnd2==0.6.3

@@ -1,0 +1,22 @@
+{
+  "schema": 1,
+  "version": "b1.0",
+  "root": "RVC_Client_Phamu_Edition",
+  "base_url": "https://github.com/Phamu-Ham/RVC-Client-Phamu-Edition/releases/download/b1.0/",
+  "zip_name": "RVC_Client_Phamu_Edition.zip",
+  "zip_bytes": 3637897035,
+  "zip_sha256": "942f6b3125e38b7bdbe785514974c19be5ffc7677d240072e26edf615914024b",
+  "unpacked_bytes": 6130618391,
+  "parts": [
+    {
+      "name": "RVC_Client_Phamu_Edition.zip.001",
+      "bytes": 1900000000,
+      "sha256": "d45742c224d6098ab3ff19ffefd5adad0839fcb068f65377603e0e571243c286"
+    },
+    {
+      "name": "RVC_Client_Phamu_Edition.zip.002",
+      "bytes": 1737897035,
+      "sha256": "a72a882f6bb4dfb88f5f4e8d403bfb6385d3b2a99980861efb50879c05fd8cd5"
+    }
+  ]
+}
