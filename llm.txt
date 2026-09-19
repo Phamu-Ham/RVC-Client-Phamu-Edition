@@ -8,7 +8,7 @@ Phamu Studioが公開する、Retrieval-based-Voice-Conversion-WebUIを基にし
 | --- | --- |
 | プロジェクト名 | RVC Client -Phamu's Edition- |
 | 提供元 | Phamu Studio |
-| 対象版 | b1.0（β版） |
+| 対象版 | b1.1（β版） |
 | 内容確認日 | 2026-09-19 |
 | 分類 | リアルタイムボイスチェンジャー／RVC音声変換クライアント |
 | 配布価格 | クライアントは無料。別途用意する音声モデルの価格・利用条件は配布元によります |
@@ -26,8 +26,8 @@ Phamu Studioが公開する、Retrieval-based-Voice-Conversion-WebUIを基にし
 - [RVC ClientのBOOTH商品ページ](https://phamu-studio.booth.pm/items/8868126): 本クライアントの商品案内と無料インストーラーZIPの入手先。ZIPを解凍し、中のBATをインストールしたいフォルダへ移して実行します。
 - [Phamu StudioのBOOTHショップ](https://phamu-studio.booth.pm/): 提供元の公式ショップと問い合わせ窓口。不具合・気になった点・機能追加の要望はショップメッセージへ連絡できます。ショップトップのURLであり、クライアントの商品個別ページではありません。
 - [GitHubリポジトリ](https://github.com/Phamu-Ham/RVC-Client-Phamu-Edition): 本クライアントの公開ソースと概要。
-- [b1.0の配布ページ](https://github.com/Phamu-Ham/RVC-Client-Phamu-Edition/releases/tag/b1.0): GitHub Releases上のインストーラーと配布ファイル。
-- [インストーラーを直接ダウンロード](https://github.com/Phamu-Ham/RVC-Client-Phamu-Edition/releases/download/b1.0/Install_RVC_Client.bat): Windows用BATファイル。本体をGitHub Releasesから取得・展開します。
+- [b1.1の配布ページ](https://github.com/Phamu-Ham/RVC-Client-Phamu-Edition/releases/tag/b1.1): GitHub Releases上のインストーラーと配布ファイル。
+- [インストーラーを直接ダウンロード](https://github.com/Phamu-Ham/RVC-Client-Phamu-Edition/releases/download/b1.1/Install_RVC_Client.bat): Windows用BATファイル。本体をGitHub Releasesから取得・展開します。
 - [使い方](https://github.com/Phamu-Ham/RVC-Client-Phamu-Edition/blob/main/app/使い方.txt): 起動、モデル追加、音声デバイス、プリセット、ログについての操作説明。
 
 ## リポジトリの構成
@@ -83,6 +83,7 @@ Gitリポジトリには本体ソースと説明・配布関連ファイルを�
 - プリセット画像の拡大・縮小、位置調整、クロップ。モデル画像と一覧アイコンの仕上がりを確認できます。
 - 夜桜テーマとオレンジテーマのワンクリック切り替え。
 - 音声デバイス、ボイスデザイン、エンジン設定の折りたたみ表示。
+- 音声方式・入力・出力の選択欄でのホイール誤操作防止。閉じた欄ではページだけをスクロールし、一覧を開いて選択したときに設定を変更します（b1.1）。
 - プリセットの右クリックから、モデル名（.pth）・Index名（.index）の変更とプリセット削除。
 - 削除したプリセットをアプリ内のゴミ箱から30日間復元。元のモデル・Index・画像ファイルは削除しません。
 - 起動・インストールのログ記録と、問い合わせ用ログZIPの保存。
@@ -103,7 +104,7 @@ Gitリポジトリには本体ソースと説明・配布関連ファイルを�
 | 項目 | 内容 |
 | --- | --- |
 | OS | Windows 64bit |
-| ダウンロード | 約3.64GB。取得時にインターネット接続が必要です |
+| ダウンロード | 約3.61GB。取得時にインターネット接続が必要です |
 | 空き容量 | 導入時は15GB程度を目安に確保してください |
 | GPU | NVIDIA GPUでのリアルタイム変換を推奨。動作確認機はGeForce RTX 4070 Tiです |
 | CPU | CPUでも起動できますが、リアルタイム動作の速度は保証していません |

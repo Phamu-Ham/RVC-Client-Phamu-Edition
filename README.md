@@ -1,15 +1,15 @@
-# RVC Client -Phamu's Edition- b1.0（β版）
+# RVC Client -Phamu's Edition- b1.1（β版）
 
 日本語UIと画像付きプリセットで使える、無料のリアルタイムRVCクライアントです。
 
-**[ダウンロード](https://github.com/Phamu-Ham/RVC-Client-Phamu-Edition/releases/download/b1.0/Install_RVC_Client.bat) · [BOOTH商品ページ](https://phamu-studio.booth.pm/items/8868126) · [BOOTHショップ](https://phamu-studio.booth.pm/) · [詳しい使い方](app/使い方.txt)**
+**[ダウンロード](https://github.com/Phamu-Ham/RVC-Client-Phamu-Edition/releases/download/b1.1/Install_RVC_Client.bat) · [BOOTH商品ページ](https://phamu-studio.booth.pm/items/8868126) · [BOOTHショップ](https://phamu-studio.booth.pm/) · [詳しい使い方](app/使い方.txt)**
 
 [プロジェクト説明（AI向けMarkdown / llm.txt）](llm.txt)
 
 | 使う前に | 内容 |
 | --- | --- |
 | 対応OS | Windows 64bit |
-| 容量 | ダウンロード 約3.64GB／導入時の空き容量 15GB程度 |
+| 容量 | ダウンロード 約3.61GB／導入時の空き容量 15GB程度 |
 | 音声モデル | 信頼できる配布元の `.pth` を用意。対応する `.index` は任意 |
 | 追加インストール | Git・Pythonは不要 |
 
@@ -37,10 +37,16 @@ Discord・VRChatへ音声を渡す場合は、必要に応じて [VB-CABLE](http
 
 プリセットを削除しても、モデル・Index・画像本体は残ります。
 
+### b1.1の変更
+
+- スクロール中に音声方式・入力・出力が意図せず切り替わり、変換が停止する問題を修正しました。
+- 閉じた選択欄の上ではページだけスクロールします。設定変更は一覧を開いて選択してください。
+- 実行環境・音声変換処理はb1.0から変更していません。
+
 ## 知っておくと安心
 
 - **起動直後は黒い画面に「起動中…」と準備状況を表示します。** 準備中は閉じずにお待ちください。
-- b1.0の配布ファイルを更新しました（2026-09-19）。以前のBATではなく、上のリンクから新しいBATを保存してください。
+- 最新版はb1.1です（2026-09-19）。b1.0を利用中の方は、新しいBATを別の空フォルダに置いて導入してください。旧環境はそのまま残せます。
 - 通信に失敗したら、同じBATを再実行できます。確認済みのダウンロードデータは再利用します。
 - 既存フォルダは上書きしません。初回導入用で、自動アップデーターではありません。
 - 導入後の一時データはゴミ箱へ移動します。空き容量が必要な場合は、内容を確認して整理してください。
