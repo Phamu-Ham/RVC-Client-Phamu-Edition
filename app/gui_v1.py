@@ -511,9 +511,13 @@ if __name__ == "__main__":
             selectforeground=[("readonly", YOZAKURA["bg"])],
         )
 
+        from tools.combobox_scroll import protect_combobox_wheel
         for key in ("sg_hostapi", "sg_input_device", "sg_output_device"):
             if key in window.AllKeysDict:
                 window[key].Widget.configure(style="Yozakura.TCombobox")
+                protect_combobox_wheel(
+                    window[key].Widget, window["main_scroll"].TKColFrame.canvas
+                )
 
         def install_custom_vertical_scrollbar(column_element):
             scroll_frame = column_element.Widget
