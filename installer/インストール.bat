@@ -22,23 +22,23 @@ Import-Module (Join-Path $PSHOME 'Modules\Microsoft.PowerShell.Archive\Microsoft
 $Release = @'
 {
   "schema": 1,
-  "version": "b1.0",
+  "version": "b1.1",
   "root": "RVC_Client_Phamu_Edition",
-  "base_url": "https://github.com/Phamu-Ham/RVC-Client-Phamu-Edition/releases/download/b1.0/",
+  "base_url": "https://github.com/Phamu-Ham/RVC-Client-Phamu-Edition/releases/download/b1.1/",
   "zip_name": "RVC_Client_Phamu_Edition.zip",
-  "zip_bytes": 3637905244,
-  "zip_sha256": "8eb2328f18e0563b1795585672a1106482ce58e53cb66cfc5bd1a435f9dea4c7",
-  "unpacked_bytes": 6130639157,
+  "zip_bytes": 3610895254,
+  "zip_sha256": "4f4c9a6ef8abb05bb3b2cc2ec023b5d57402f4e9657c00feaf8d25b63cad176f",
+  "unpacked_bytes": 6130638375,
   "parts": [
     {
       "name": "RVC_Client_Phamu_Edition.zip.001",
       "bytes": 1900000000,
-      "sha256": "a6884e3f39f2750d5fae65a5d31cdc3fd462eb05ca0719acaa87ca016ca2bc15"
+      "sha256": "13646586769792040195c530f97453bd17ffbb26da5f44d1241bf7b3dc82f473"
     },
     {
       "name": "RVC_Client_Phamu_Edition.zip.002",
-      "bytes": 1737905244,
-      "sha256": "5f50abead568e2bbb7778ce3d98f32fd31de8cbed17a85d16fc4f33c41358e74"
+      "bytes": 1710895254,
+      "sha256": "2943eac6b2b3588713c0c2f959b49148e781d0dc4254dbd75eb45d189416f639"
     }
   ]
 }
